@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Private bucket-first UPI payment launcher for personal budgeting. Standalone local build.">
+  <meta name="robots" content="noindex,nofollow">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f4;
+  --surface: #ffffff;
+  --surface-2: #f0f1ed;
+  --text: #171717;
+  --muted: #6b7280;
+  --border: #dedfd9;
+  --accent: #111827;
+  --accent-text: #ffffff;
+  --danger: #b42318;
+  --warning: #9a6700;
+  --success: #067647;
+  --shadow: 0 8px 24px rgba(0,0,0,.07);
+  --radius: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #10110f;
+    --surface: #181a17;
+    --surface-2: #22241f;
+    --text: #f5f5f2;
+    --muted: #a6aaa2;
+    --border: #30332d;
+    --accent: #f5f5f2;
+    --accent-text: #11120f;
+    --danger: #ffb4ab;
+    --warning: #f5d06f;
+    --success: #7ee2b8;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+.app-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 84px;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  min-height: 68px;
+  padding: env(safe-area-inset-top) 12px 0;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(16px);
+}
+.brand-wrap { min-width: 0; text-align: center; }
+.brand { font-weight: 760; letter-spacing: -.02em; }
+.subtle { color: var(--muted); font-size: .78rem; }
+.icon-btn {
+  min-width: 44px; min-height: 44px; border: 0; border-radius: 14px;
+  background: transparent; color: var(--text); font-size: 1.2rem; cursor: pointer;
+}
+.icon-btn:active { background: var(--surface-2); }
+.hidden { visibility: hidden !important; pointer-events: none !important; }
+
+main { padding: 14px 16px 32px; outline: none; }
+.hero {
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+.eyebrow { color: var(--muted); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.hero-amount { margin-top: 4px; font-size: clamp(2rem, 9vw, 3.5rem); line-height: 1; font-weight: 780; letter-spacing: -.055em; }
+.hero-meta { margin-top: 9px; color: var(--muted); }
+
+.section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 24px 2px 10px; }
+.section-head h2 { margin:0; font-size:1rem; }
+.section-head button { flex:0 0 auto; }
+
+.bucket-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.bucket-card {
+  min-width:0; min-height:142px; padding:14px; text-align:left; border:1px solid var(--border); border-radius:18px;
+  background:var(--surface); color:var(--text); cursor:pointer; box-shadow:var(--shadow);
+}
+.bucket-card:active { transform: scale(.99); }
+.bucket-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.emoji { font-size:1.35rem; }
+.bucket-name { font-weight:720; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.remaining { margin-top:18px; font-weight:770; font-size:1.2rem; letter-spacing:-.02em; }
+.mini { color:var(--muted); font-size:.78rem; margin-top:4px; }
+.progress { height:6px; margin-top:12px; overflow:hidden; border-radius:999px; background:var(--surface-2); }
+.progress > span { display:block; height:100%; width:0; background:var(--text); border-radius:inherit; transition:width .2s ease; }
+.progress.over > span { background:var(--danger); }
+.progress.warn > span { background:var(--warning); }
+
+.primary, .secondary, .danger-btn, .text-btn {
+  min-height:48px; border-radius:15px; padding: 0 16px; font-weight:720; cursor:pointer;
+}
+.primary { border:1px solid var(--accent); background:var(--accent); color:var(--accent-text); }
+.secondary { border:1px solid var(--border); background:var(--surface); color:var(--text); }
+.danger-btn { border:1px solid color-mix(in srgb,var(--danger) 35%,var(--border)); background:transparent; color:var(--danger); }
+.text-btn { min-height:40px; padding:0 10px; border:0; background:transparent; color:var(--text); }
+.primary:disabled, .secondary:disabled { opacity:.45; cursor:not-allowed; }
+.full { width:100%; }
+.action-stack { display:grid; gap:10px; margin-top:16px; }
+.action-row { display:flex; flex-wrap:wrap; gap:10px; }
+.action-row > * { flex:1 1 150px; }
+
+.panel { padding:16px; border:1px solid var(--border); border-radius:18px; background:var(--surface); }
+.panel + .panel { margin-top:12px; }
+.panel h2, .panel h3 { margin:0 0 8px; }
+.notice { padding:12px 14px; border-radius:14px; background:var(--surface-2); color:var(--muted); font-size:.88rem; }
+.notice.warning { color:var(--warning); }
+.notice.danger { color:var(--danger); }
+.notice.success { color:var(--success); }
+
+.field { display:grid; gap:7px; margin-top:14px; }
+.field label { font-size:.82rem; color:var(--muted); font-weight:650; }
+.input, .select {
+  width:100%; min-height:48px; padding:10px 12px; border:1px solid var(--border); border-radius:13px;
+  background:var(--surface); color:var(--text); font-size:16px; outline:none;
+}
+.input:focus, .select:focus { border-color:var(--text); box-shadow:0 0 0 3px color-mix(in srgb,var(--text) 10%, transparent); }
+.input[readonly] { background:var(--surface-2); }
+
+.pay-summary { display:grid; gap:11px; }
+.summary-row { display:flex; gap:12px; justify-content:space-between; align-items:flex-start; }
+.summary-row .label { color:var(--muted); font-size:.84rem; }
+.summary-row .value { text-align:right; font-weight:680; overflow-wrap:anywhere; }
+.pay-amount { text-align:center; font-size:2.35rem; font-weight:800; letter-spacing:-.05em; padding:14px 0; }
+.bucket-chip { display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px; background:var(--surface-2); font-weight:650; }
+
+.scanner-wrap { position:relative; overflow:hidden; border-radius:20px; background:#000; aspect-ratio: 4/5; max-height:540px; }
+#scanVideo { width:100%; height:100%; object-fit:cover; display:block; }
+.scan-overlay { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; }
+.scan-frame { width:min(72%,300px); aspect-ratio:1; border:3px solid rgba(255,255,255,.9); border-radius:24px; box-shadow:0 0 0 999px rgba(0,0,0,.28); }
+.scan-tip { position:absolute; bottom:14px; left:14px; right:14px; color:white; text-align:center; font-size:.82rem; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+
+.list { display:grid; gap:8px; }
+.tx { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:13px 14px; border:1px solid var(--border); border-radius:15px; background:var(--surface); }
+.tx-title { font-weight:680; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tx-meta { margin-top:3px; color:var(--muted); font-size:.78rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tx-amount { font-weight:760; white-space:nowrap; }
+.tx-actions { grid-column:1/-1; display:flex; justify-content:flex-end; }
+
+.bucket-editor { display:grid; grid-template-columns:68px 1fr 120px auto; gap:8px; align-items:end; padding:10px 0; border-bottom:1px solid var(--border); }
+.bucket-editor:last-child { border-bottom:0; }
+.bucket-editor .field { margin-top:0; }
+
+.empty { padding:28px 16px; text-align:center; color:var(--muted); }
+.divider { height:1px; background:var(--border); margin:16px 0; }
+
+.bottom-nav {
+  position:fixed; z-index:30; bottom:0; left:50%; transform:translateX(-50%); width:min(720px,100%);
+  display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border); background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(18px);
+}
+.nav-btn { min-height:52px; display:grid; place-items:center; align-content:center; gap:1px; border:0; border-radius:14px; background:transparent; color:var(--muted); cursor:pointer; }
+.nav-btn span { font-size:1.15rem; line-height:1; }
+.nav-btn small { font-size:.7rem; }
+.nav-btn.active { color:var(--text); background:var(--surface-2); }
+
+.toast { position:fixed; z-index:100; left:50%; bottom:94px; transform:translate(-50%,14px); max-width:min(520px,calc(100% - 32px)); padding:11px 14px; border-radius:13px; background:var(--text); color:var(--bg); opacity:0; pointer-events:none; transition:.2s ease; box-shadow:var(--shadow); font-size:.88rem; text-align:center; }
+.toast.show { opacity:1; transform:translate(-50%,0); }
+
+@media (max-width: 440px) {
+  .bucket-grid { grid-template-columns:1fr 1fr; }
+  .bucket-editor { grid-template-columns:64px 1fr; }
+  .bucket-editor .limit-field { grid-column:1/2; }
+  .bucket-editor .delete-cell { grid-column:2/3; align-self:end; }
+}
+@media (max-width: 355px) {
+  main { padding-left:12px; padding-right:12px; }
+  .bucket-grid { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
+}
+
+</style>
+  <title>BucketPay</title>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <button id="backBtn" class="icon-btn hidden" type="button" aria-label="Go back">←</button>
+      <div class="brand-wrap">
+        <div class="brand">BucketPay</div>
+        <div id="periodLabel" class="subtle"></div>
+      </div>
+      <button id="settingsBtn" class="icon-btn" type="button" aria-label="Settings">⚙️</button>
+    </header>
+
+    <main id="main" tabindex="-1"></main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button id="navHome" class="nav-btn active" type="button"><span>⌂</span><small>Home</small></button>
+      <button id="navHistory" class="nav-btn" type="button"><span>↺</span><small>History</small></button>
+      <button id="navSettings" class="nav-btn" type="button"><span>⚙</span><small>Settings</small></button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <input id="importFile" type="file" accept="application/json,.json" hidden>
+
+  <script>
+const STORAGE_KEY = 'bucketpay.state.v1';
+const PENDING_KEY = 'bucketpay.pending.v1';
+const STATE_VERSION = 1;
+
+function makeId(prefix = 'id') {
+  if (globalThis.crypto?.randomUUID) return `${prefix}_${globalThis.crypto.randomUUID()}`;
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function periodKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+function defaultState() {
+  return {
+    version: STATE_VERSION,
+    buckets: [
+      { id: 'food', name: 'Food', emoji: '🍲', limit: 10000 },
+      { id: 'shopping', name: 'Shopping', emoji: '🛍️', limit: 3000 },
+      { id: 'fun', name: 'Fun', emoji: '🎉', limit: 3000 },
+      { id: 'transport', name: 'Transport', emoji: '🚕', limit: 4000 },
+      { id: 'misc', name: 'Misc', emoji: '🧾', limit: 3000 }
+    ],
+    transactions: [],
+    settings: {
+      warnAtPercent: 80,
+      lockAtLimit: true
+    }
+  };
+}
+
+function normalizeState(input) {
+  const fallback = defaultState();
+  if (!input || typeof input !== 'object') return fallback;
+
+  const buckets = Array.isArray(input.buckets)
+    ? input.buckets
+        .map((b) => ({
+          id: String(b.id || makeId('bucket')),
+          name: String(b.name || 'Bucket').slice(0, 40),
+          emoji: String(b.emoji || '💰').slice(0, 8),
+          limit: clampMoney(b.limit, 0, 100000000)
+        }))
+        .filter((b) => b.name)
+    : fallback.buckets;
+
+  const bucketIds = new Set(buckets.map((b) => b.id));
+  const transactions = Array.isArray(input.transactions)
+    ? input.transactions
+        .map((t) => ({
+          id: String(t.id || makeId('tx')),
+          bucketId: String(t.bucketId || ''),
+          bucketName: String(t.bucketName || ''),
+          merchant: String(t.merchant || 'UPI payment').slice(0, 120),
+          vpa: String(t.vpa || '').slice(0, 150),
+          amount: clampMoney(t.amount, 0.01, 100000000),
+          timestamp: Number.isFinite(Number(t.timestamp)) ? Number(t.timestamp) : Date.now(),
+          period: /^\d{4}-\d{2}$/.test(String(t.period || ''))
+            ? String(t.period)
+            : periodKey(new Date(Number(t.timestamp) || Date.now())),
+          note: String(t.note || '').slice(0, 200)
+        }))
+        .filter((t) => bucketIds.has(t.bucketId) && Number.isFinite(t.amount) && t.amount > 0)
+    : [];
+
+  return {
+    version: STATE_VERSION,
+    buckets: buckets.length ? buckets : fallback.buckets,
+    transactions,
+    settings: {
+      warnAtPercent: Math.min(100, Math.max(1, Number(input.settings?.warnAtPercent) || 80)),
+      lockAtLimit: input.settings?.lockAtLimit !== false
+    }
+  };
+}
+
+function clampMoney(value, min = 0, max = 100000000) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, Math.round((n + Number.EPSILON) * 100) / 100));
+}
+
+function parseAmount(value) {
+  const text = String(value ?? '').trim().replace(/,/g, '');
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return null;
+  const amount = Number(text);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000) return null;
+  return Math.round(amount * 100) / 100;
+}
+
+function parseUpiQr(raw) {
+  const text = String(raw || '').trim();
+  if (!text) return { ok: false, error: 'QR code is empty.' };
+
+  let url;
+  try {
+    url = new URL(text);
+  } catch {
+    return { ok: false, error: 'This QR is not a valid UPI payment QR.' };
+  }
+
+  if (url.protocol.toLowerCase() !== 'upi:' || url.hostname.toLowerCase() !== 'pay') {
+    return { ok: false, error: 'This QR is not a UPI payment QR (upi://pay).' };
+  }
+
+  const pa = (url.searchParams.get('pa') || '').trim();
+  if (!pa) return { ok: false, error: 'The UPI QR does not contain a payee address (pa).' };
+
+  const rawAmount = (url.searchParams.get('am') || '').trim();
+  let fixedAmount = null;
+  if (rawAmount) {
+    fixedAmount = parseAmount(rawAmount);
+    if (fixedAmount === null) {
+      return { ok: false, error: 'The UPI QR contains an invalid amount.' };
+    }
+  }
+
+  const currency = (url.searchParams.get('cu') || 'INR').toUpperCase();
+  if (currency !== 'INR') {
+    return { ok: false, error: `This app currently supports INR UPI payments only (QR says ${currency}).` };
+  }
+
+  return {
+    ok: true,
+    raw: text,
+    url,
+    payeeVpa: pa,
+    payeeName: (url.searchParams.get('pn') || '').trim(),
+    merchantCode: (url.searchParams.get('mc') || '').trim(),
+    note: (url.searchParams.get('tn') || '').trim(),
+    fixedAmount,
+    currency
+  };
+}
+
+function buildUpiPaymentUri(parsed, amount) {
+  if (!parsed?.ok || !parsed.url) throw new Error('A valid parsed UPI QR is required.');
+  const validAmount = parseAmount(amount);
+  if (validAmount === null) throw new Error('A valid positive amount is required.');
+
+  const url = new URL(parsed.url.toString());
+  url.searchParams.set('am', validAmount.toFixed(2));
+  url.searchParams.set('cu', 'INR');
+  return url.toString();
+}
+
+
+function buildAndroidIntentUri(upiUri, packageName) {
+  const url = new URL(String(upiUri));
+  if (url.protocol.toLowerCase() !== 'upi:' || url.hostname.toLowerCase() !== 'pay') {
+    throw new Error('A valid upi://pay URI is required.');
+  }
+  if (!/^[A-Za-z0-9._]+$/.test(String(packageName || ''))) {
+    throw new Error('A valid Android package name is required.');
+  }
+  const target = `${url.hostname}${url.pathname}${url.search}`;
+  return `intent://${target}#Intent;scheme=upi;package=${packageName};end`;
+}
+
+function spentForBucket(state, bucketId, period = periodKey()) {
+  return state.transactions
+    .filter((t) => t.bucketId === bucketId && t.period === period)
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}
+
+function bucketSnapshot(state, bucketId, period = periodKey()) {
+  const bucket = state.buckets.find((b) => b.id === bucketId);
+  if (!bucket) return null;
+  const spent = Math.round(spentForBucket(state, bucketId, period) * 100) / 100;
+  const remaining = Math.round((bucket.limit - spent) * 100) / 100;
+  const percent = bucket.limit > 0 ? (spent / bucket.limit) * 100 : spent > 0 ? 100 : 0;
+  return { ...bucket, spent, remaining, percent };
+}
+
+function totalSnapshot(state, period = periodKey()) {
+  const rows = state.buckets.map((b) => bucketSnapshot(state, b.id, period));
+  const limit = rows.reduce((s, r) => s + r.limit, 0);
+  const spent = rows.reduce((s, r) => s + r.spent, 0);
+  const remaining = limit - spent;
+  return {
+    limit: Math.round(limit * 100) / 100,
+    spent: Math.round(spent * 100) / 100,
+    remaining: Math.round(remaining * 100) / 100
+  };
+}
+
+function addTransaction(state, payment) {
+  const bucket = state.buckets.find((b) => b.id === payment.bucketId);
+  if (!bucket) throw new Error('Bucket not found.');
+  const amount = parseAmount(payment.amount);
+  if (amount === null) throw new Error('Invalid transaction amount.');
+  const timestamp = Number(payment.timestamp) || Date.now();
+
+  state.transactions.unshift({
+    id: makeId('tx'),
+    bucketId: bucket.id,
+    bucketName: bucket.name,
+    merchant: String(payment.merchant || payment.vpa || 'UPI payment').slice(0, 120),
+    vpa: String(payment.vpa || '').slice(0, 150),
+    amount,
+    timestamp,
+    period: periodKey(new Date(timestamp)),
+    note: String(payment.note || '').slice(0, 200)
+  });
+  return state;
+}
+
+function removeTransaction(state, transactionId) {
+  state.transactions = state.transactions.filter((t) => t.id !== transactionId);
+  return state;
+}
+
+function formatInr(amount) {
+  const n = Number(amount) || 0;
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: Number.isInteger(n) ? 0 : 2
+  }).format(n);
+}
+
+
+const $ = (sel) => document.querySelector(sel);
+const main = $('#main');
+const backBtn = $('#backBtn');
+const settingsBtn = $('#settingsBtn');
+const periodLabel = $('#periodLabel');
+const navHome = $('#navHome');
+const navHistory = $('#navHistory');
+const navSettings = $('#navSettings');
+const toast = $('#toast');
+const importFile = $('#importFile');
+
+let state = loadState();
+let route = { name: 'home' };
+let scanner = { stream: null, video: null, detector: null, timer: null, busy: false };
+let currentScan = null;
+let selectedBucketId = null;
+let installPrompt = null;
+let launchedPendingThisSession = false;
+
+const memoryStore = new Map();
+let persistentStorageAvailable = true;
+
+function storageGet(key) {
+  try { return localStorage.getItem(key); }
+  catch { persistentStorageAvailable = false; return memoryStore.get(key) ?? null; }
+}
+function storageSet(key, value) {
+  try { localStorage.setItem(key, value); }
+  catch { persistentStorageAvailable = false; memoryStore.set(key, value); }
+}
+function storageRemove(key) {
+  try { localStorage.removeItem(key); }
+  catch { persistentStorageAvailable = false; memoryStore.delete(key); }
+}
+
+function loadState() {
+  try {
+    return normalizeState(JSON.parse(storageGet(STORAGE_KEY)));
+  } catch {
+    return defaultState();
+  }
+}
+
+function saveState() {
+  storageSet(STORAGE_KEY, JSON.stringify(state));
+}
+
+function readPending() {
+  try { return JSON.parse(storageGet(PENDING_KEY)); } catch { return null; }
+}
+function writePending(pending) { storageSet(PENDING_KEY, JSON.stringify(pending)); }
+function clearPending() { storageRemove(PENDING_KEY); launchedPendingThisSession = false; }
+
+function esc(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+function monthLabel() {
+  return new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+}
+
+function notify(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(notify._timer);
+  notify._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function setRoute(name, data = {}) {
+  stopScanner();
+  route = { name, ...data };
+  render();
+  requestAnimationFrame(() => main.focus({ preventScroll: true }));
+}
+
+function syncChrome() {
+  periodLabel.textContent = monthLabel();
+  backBtn.classList.toggle('hidden', ['home', 'history', 'settings'].includes(route.name));
+  settingsBtn.classList.toggle('hidden', route.name === 'settings');
+  navHome.classList.toggle('active', route.name === 'home');
+  navHistory.classList.toggle('active', route.name === 'history');
+  navSettings.classList.toggle('active', route.name === 'settings');
+}
+
+function render() {
+  syncChrome();
+  if (route.name === 'home') renderHome();
+  else if (route.name === 'scanner') renderScanner();
+  else if (route.name === 'payment') renderPayment();
+  else if (route.name === 'pending') renderPending();
+  else if (route.name === 'history') renderHistory();
+  else if (route.name === 'settings') renderSettings();
+  else renderHome();
+}
+
+function renderHome() {
+  const total = totalSnapshot(state);
+  const cards = state.buckets.map((b) => {
+    const snap = bucketSnapshot(state, b.id);
+    const used = Math.max(0, Math.min(100, snap.percent));
+    const statusClass = snap.remaining < 0 ? 'over' : snap.percent >= state.settings.warnAtPercent ? 'warn' : '';
+    return `
+      <button class="bucket-card" data-bucket="${esc(b.id)}" type="button">
+        <div class="bucket-top"><span class="emoji">${esc(b.emoji)}</span><span class="bucket-name">${esc(b.name)}</span></div>
+        <div class="remaining">${formatInr(snap.remaining)}</div>
+        <div class="mini">${formatInr(snap.spent)} spent of ${formatInr(snap.limit)}</div>
+        <div class="progress ${statusClass}"><span style="width:${used.toFixed(1)}%"></span></div>
+      </button>`;
+  }).join('');
+
+  main.innerHTML = `
+    <section class="hero">
+      <div class="eyebrow">Available across buckets</div>
+      <div class="hero-amount">${formatInr(total.remaining)}</div>
+      <div class="hero-meta">${formatInr(total.spent)} spent of ${formatInr(total.limit)} this month</div>
+    </section>
+
+    <div class="section-head"><h2>Pay from a bucket</h2><button id="manualExpenseBtn" class="text-btn" type="button">+ Expense</button></div>
+    <section class="bucket-grid">${cards}</section>
+
+    <div class="panel" style="margin-top:16px">
+      <strong>How it works</strong>
+      <div class="mini" style="margin-top:6px">Choose a bucket → scan UPI QR → amount is read automatically when present → open your UPI app. No bank password or UPI PIN is stored here.</div>
+    </div>
+    ${persistentStorageAvailable ? '' : '<div class="notice warning" style="margin-top:12px"><strong>Storage warning:</strong> this Android document viewer blocked persistent browser storage, so changes may be lost after closing the file. The HTTPS version fixes this.</div>'}`;
+
+  main.querySelectorAll('[data-bucket]').forEach((el) => el.addEventListener('click', () => {
+    selectedBucketId = el.dataset.bucket;
+    setRoute('scanner', { bucketId: selectedBucketId });
+  }));
+  $('#manualExpenseBtn').addEventListener('click', openManualExpense);
+}
+
+function renderScanner() {
+  const bucket = state.buckets.find((b) => b.id === route.bucketId);
+  if (!bucket) return setRoute('home');
+  selectedBucketId = bucket.id;
+
+  main.innerHTML = `
+    <section class="panel">
+      <div class="bucket-chip">${esc(bucket.emoji)} ${esc(bucket.name)} · ${formatInr(bucketSnapshot(state, bucket.id).remaining)} left</div>
+      <h2 style="margin-top:14px">Scan UPI QR</h2>
+      <p class="mini">If the QR already contains an amount, BucketPay will use it. Otherwise you’ll enter the amount next.</p>
+    </section>
+    <section class="scanner-wrap" style="margin-top:12px">
+      <video id="scanVideo" playsinline muted></video>
+      <div class="scan-overlay"><div class="scan-frame"></div><div class="scan-tip" id="scanTip">Starting camera…</div></div>
+    </section>
+    <div id="scanMessage" class="notice" style="margin-top:12px">Camera scanning needs HTTPS and Chrome/Chromium with QR detection support.</div>
+    <div class="action-stack">
+      <label class="secondary full" style="display:grid;place-items:center;cursor:pointer">
+        Take / choose QR photo
+        <input id="qrImageInput" type="file" accept="image/*" capture="environment" hidden>
+      </label>
+      <button id="pasteUpiBtn" class="secondary full" type="button">Paste / type UPI link</button>
+    </div>`;
+
+  $('#qrImageInput').addEventListener('change', scanImageFile);
+  $('#pasteUpiBtn').addEventListener('click', () => {
+    const raw = window.prompt('Paste the UPI QR text (starts with upi://pay?...):');
+    if (raw) handleDecodedQr(raw);
+  });
+  startScanner();
+}
+
+async function getDetector() {
+  if (!('BarcodeDetector' in window)) return null;
+  try {
+    const formats = await BarcodeDetector.getSupportedFormats?.();
+    if (Array.isArray(formats) && !formats.includes('qr_code')) return null;
+    return new BarcodeDetector({ formats: ['qr_code'] });
+  } catch {
+    try { return new BarcodeDetector(); } catch { return null; }
+  }
+}
+
+async function startScanner() {
+  const video = $('#scanVideo');
+  const tip = $('#scanTip');
+  const message = $('#scanMessage');
+  if (!video || route.name !== 'scanner') return;
+
+  scanner.detector = await getDetector();
+  if (!scanner.detector) {
+    tip.textContent = 'QR detector unavailable';
+    message.innerHTML = '<strong>This browser does not expose its built-in QR detector here.</strong> Try current Chrome. You can still paste/type the UPI link below. For guaranteed live scanning, use the HTTPS version.';
+    return;
+  }
+
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    tip.textContent = 'Local-file mode';
+    message.innerHTML = '<strong>Local-file mode:</strong> tap “Take / choose QR photo” below. A live camera preview requires the HTTPS version.';
+    return;
+  }
+
+  try {
+    scanner.stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1280 } }
+    });
+    if (route.name !== 'scanner') return stopScanner();
+    scanner.video = video;
+    video.srcObject = scanner.stream;
+    await video.play();
+    tip.textContent = 'Point at a UPI QR';
+    message.textContent = 'Scanning happens on this device. The camera feed is not uploaded.';
+    scanLoop();
+  } catch (err) {
+    tip.textContent = 'Camera permission needed';
+    message.textContent = err?.name === 'NotAllowedError'
+      ? 'Camera permission was blocked. Allow camera access for this site, or use “Take / choose QR photo”.'
+      : 'Could not start the camera. Try “Take / choose QR photo” instead.';
+  }
+}
+
+async function scanLoop() {
+  if (route.name !== 'scanner' || !scanner.video || !scanner.detector) return;
+  if (!scanner.busy && scanner.video.readyState >= 2) {
+    scanner.busy = true;
+    try {
+      const codes = await scanner.detector.detect(scanner.video);
+      if (codes?.length && codes[0].rawValue) {
+        await stopScanner();
+        handleDecodedQr(codes[0].rawValue);
+        return;
+      }
+    } catch { /* ignore intermittent frame errors */ }
+    scanner.busy = false;
+  }
+  scanner.timer = setTimeout(scanLoop, 220);
+}
+
+async function stopScanner() {
+  if (scanner.timer) clearTimeout(scanner.timer);
+  scanner.timer = null;
+  scanner.busy = false;
+  if (scanner.video) {
+    try { scanner.video.pause(); } catch {}
+    scanner.video.srcObject = null;
+  }
+  if (scanner.stream) scanner.stream.getTracks().forEach((t) => t.stop());
+  scanner.stream = null;
+  scanner.video = null;
+  scanner.detector = null;
+}
+
+async function scanImageFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const detector = scanner.detector || await getDetector();
+  if (!detector) return notify('QR detection is unavailable here. Use current Chrome or paste the UPI link.');
+  try {
+    const bitmap = await createImageBitmap(file);
+    const codes = await detector.detect(bitmap);
+    bitmap.close?.();
+    if (!codes?.length) return notify('No QR code found in that image.');
+    await stopScanner();
+    handleDecodedQr(codes[0].rawValue);
+  } catch {
+    notify('Could not read that image.');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+function handleDecodedQr(raw) {
+  const parsed = parseUpiQr(raw);
+  if (!parsed.ok) {
+    notify(parsed.error);
+    if (route.name !== 'scanner') setRoute('scanner', { bucketId: selectedBucketId });
+    return;
+  }
+  currentScan = parsed;
+  setRoute('payment', { bucketId: selectedBucketId });
+}
+
+function renderPayment() {
+  const bucket = state.buckets.find((b) => b.id === route.bucketId);
+  if (!bucket || !currentScan) return setRoute('home');
+  const snap = bucketSnapshot(state, bucket.id);
+  const hasFixed = currentScan.fixedAmount !== null;
+  const amountValue = hasFixed ? currentScan.fixedAmount.toFixed(2) : '';
+
+  main.innerHTML = `
+    <section class="panel pay-summary">
+      <div class="bucket-chip">${esc(bucket.emoji)} ${esc(bucket.name)} · ${formatInr(snap.remaining)} left</div>
+      <div class="summary-row"><div class="label">Payee</div><div class="value">${esc(currentScan.payeeName || currentScan.payeeVpa)}</div></div>
+      ${currentScan.payeeName ? `<div class="summary-row"><div class="label">UPI ID</div><div class="value">${esc(currentScan.payeeVpa)}</div></div>` : ''}
+      ${currentScan.note ? `<div class="summary-row"><div class="label">QR note</div><div class="value">${esc(currentScan.note)}</div></div>` : ''}
+      <div class="field">
+        <label for="amountInput">Amount ${hasFixed ? '· fixed by QR' : '· QR has no amount'}</label>
+        <input id="amountInput" class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="₹0" value="${esc(amountValue)}" ${hasFixed ? 'readonly' : ''}>
+      </div>
+      <div id="amountImpact" class="notice">${hasFixed ? 'Amount detected from QR.' : 'Enter the amount you want to pay.'}</div>
+    </section>
+    <div class="action-stack">
+      <button id="openGpayBtn" class="primary full" type="button" ${hasFixed ? '' : 'disabled'}>Open Google Pay</button>
+      <button id="openUpiBtn" class="secondary full" type="button" ${hasFixed ? '' : 'disabled'}>Other UPI app</button>
+      <button id="rescanBtn" class="secondary full" type="button">Scan again</button>
+    </div>
+    <div class="notice" style="margin-top:12px">Your UPI app performs the actual payment and asks for your UPI PIN. BucketPay only launches the UPI payment link.</div>`;
+
+  const amountInput = $('#amountInput');
+  const openBtn = $('#openUpiBtn');
+  const gpayBtn = $('#openGpayBtn');
+  const impact = $('#amountImpact');
+
+  function validate() {
+    const amount = parseAmount(amountInput.value);
+    if (amount === null) {
+      impact.className = 'notice';
+      impact.textContent = hasFixed ? 'Invalid QR amount.' : 'Enter a valid amount greater than ₹0.';
+      openBtn.disabled = true;
+      gpayBtn.disabled = true;
+      return;
+    }
+    const after = Math.round((snap.remaining - amount) * 100) / 100;
+    if (state.settings.lockAtLimit && amount > snap.remaining) {
+      impact.className = 'notice danger';
+      impact.textContent = `${formatInr(amount)} would exceed ${bucket.name} by ${formatInr(Math.abs(after))}. Increase the bucket limit or choose another bucket.`;
+      openBtn.disabled = true;
+      gpayBtn.disabled = true;
+      return;
+    }
+    const low = snap.limit > 0 && ((snap.spent + amount) / snap.limit) * 100 >= state.settings.warnAtPercent;
+    impact.className = `notice ${low ? 'warning' : 'success'}`;
+    impact.textContent = `After payment: ${formatInr(after)} left in ${bucket.name}.`;
+    openBtn.disabled = false;
+    gpayBtn.disabled = false;
+  }
+
+  amountInput.addEventListener('input', validate);
+  gpayBtn.addEventListener('click', () => launchUpi(bucket, parseAmount(amountInput.value), 'gpay'));
+  openBtn.addEventListener('click', () => launchUpi(bucket, parseAmount(amountInput.value), 'any'));
+  $('#rescanBtn').addEventListener('click', () => { currentScan = null; setRoute('scanner', { bucketId: bucket.id }); });
+  validate();
+}
+
+function launchUpi(bucket, amount, target = 'any') {
+  if (!currentScan || !amount) return;
+  const payUri = buildUpiPaymentUri(currentScan, amount);
+  const launchUri = target === 'gpay'
+    ? buildAndroidIntentUri(payUri, 'com.google.android.apps.nbu.paisa.user')
+    : payUri;
+  const pending = {
+    id: makeId('pending'),
+    bucketId: bucket.id,
+    merchant: currentScan.payeeName || currentScan.payeeVpa,
+    vpa: currentScan.payeeVpa,
+    note: currentScan.note || '',
+    amount,
+    startedAt: Date.now(),
+    uri: payUri,
+    launchUri,
+    target
+  };
+  writePending(pending);
+  launchedPendingThisSession = true;
+  notify('Opening your UPI app…');
+
+  // Generic UPI intent: Android will typically open the default app or show a chooser.
+  window.location.href = launchUri;
+
+  // If no app handles the URI, keep a visible recovery path.
+  setTimeout(() => {
+    if (document.visibilityState === 'visible' && readPending()?.id === pending.id) {
+      setRoute('pending');
+    }
+  }, 1700);
+}
+
+function renderPending() {
+  const pending = readPending();
+  if (!pending) return setRoute('home');
+  const bucket = state.buckets.find((b) => b.id === pending.bucketId);
+  if (!bucket) { clearPending(); return setRoute('home'); }
+
+  main.innerHTML = `
+    <section class="panel">
+      <div class="eyebrow">Confirm after returning from UPI app</div>
+      <div class="pay-amount">${formatInr(pending.amount)}</div>
+      <div class="pay-summary">
+        <div class="summary-row"><div class="label">Payee</div><div class="value">${esc(pending.merchant)}</div></div>
+        <div class="summary-row"><div class="label">From bucket</div><div class="value">${esc(bucket.emoji)} ${esc(bucket.name)}</div></div>
+      </div>
+      <div class="notice warning" style="margin-top:16px">A personal PWA cannot securely verify the bank transaction by itself. Confirm only if your UPI app shows the payment succeeded.</div>
+    </section>
+    <div class="action-stack">
+      <button id="paidYes" class="primary full" type="button">Yes, payment succeeded</button>
+      <button id="retryPayment" class="secondary full" type="button">Open UPI app again</button>
+      <button id="paidNo" class="secondary full" type="button">No, cancel this attempt</button>
+    </div>`;
+
+  $('#paidYes').addEventListener('click', () => {
+    addTransaction(state, pending);
+    saveState();
+    clearPending();
+    currentScan = null;
+    notify(`Deducted ${formatInr(pending.amount)} from ${bucket.name}.`);
+    setRoute('home');
+  });
+  $('#retryPayment').addEventListener('click', () => {
+    launchedPendingThisSession = true;
+    window.location.href = pending.launchUri || pending.uri;
+  });
+  $('#paidNo').addEventListener('click', () => {
+    clearPending();
+    currentScan = null;
+    notify('Payment attempt cancelled. Nothing deducted.');
+    setRoute('home');
+  });
+}
+
+function renderHistory() {
+  const rows = state.transactions.filter((t) => t.period === periodKey());
+  main.innerHTML = `
+    <div class="section-head"><h2>${esc(monthLabel())}</h2><button id="historyAdd" class="text-btn" type="button">+ Expense</button></div>
+    <section class="list">
+      ${rows.length ? rows.map((t) => `
+        <article class="tx">
+          <div><div class="tx-title">${esc(t.merchant)}</div><div class="tx-meta">${esc(t.bucketName)} · ${new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(new Date(t.timestamp))}${t.vpa ? ` · ${esc(t.vpa)}` : ''}</div></div>
+          <div class="tx-amount">-${formatInr(t.amount)}</div>
+          <div class="tx-actions"><button class="text-btn" data-delete-tx="${esc(t.id)}" type="button">Undo</button></div>
+        </article>`).join('') : '<div class="empty">No expenses recorded this month.</div>'}
+    </section>`;
+  $('#historyAdd').addEventListener('click', openManualExpense);
+  main.querySelectorAll('[data-delete-tx]').forEach((btn) => btn.addEventListener('click', () => {
+    const tx = state.transactions.find((t) => t.id === btn.dataset.deleteTx);
+    if (!tx) return;
+    if (!confirm(`Undo ${formatInr(tx.amount)} from ${tx.bucketName}?`)) return;
+    removeTransaction(state, tx.id);
+    saveState();
+    notify('Expense removed.');
+    renderHistory();
+  }));
+}
+
+function openManualExpense() {
+  const bucketOptions = state.buckets.map((b) => `${b.name} (${formatInr(bucketSnapshot(state,b.id).remaining)} left)`).join('\n');
+  const bucketName = prompt(`Bucket name:\n${bucketOptions}`);
+  if (!bucketName) return;
+  const bucket = state.buckets.find((b) => b.name.toLowerCase() === bucketName.trim().toLowerCase());
+  if (!bucket) return notify('Type the bucket name exactly as shown.');
+  const amount = parseAmount(prompt('Amount spent:'));
+  if (amount === null) return notify('Invalid amount.');
+  const snap = bucketSnapshot(state, bucket.id);
+  if (state.settings.lockAtLimit && amount > snap.remaining) return notify('That would exceed the bucket limit.');
+  const merchant = prompt('Merchant / note (optional):') || 'Manual expense';
+  addTransaction(state, { bucketId: bucket.id, amount, merchant, vpa: '', note: 'Manual entry' });
+  saveState();
+  notify('Expense added.');
+  render();
+}
+
+function renderSettings() {
+  main.innerHTML = `
+    <section class="panel">
+      <h2>Monthly buckets</h2>
+      <div class="mini">Limits repeat each calendar month. Spending automatically starts from zero in the new month because transactions are tracked by month.</div>
+      <div id="bucketEditors" style="margin-top:10px">
+        ${state.buckets.map((b) => `
+          <div class="bucket-editor" data-edit-bucket="${esc(b.id)}">
+            <div class="field"><label>Emoji</label><input class="input emoji-input" value="${esc(b.emoji)}" maxlength="8"></div>
+            <div class="field"><label>Name</label><input class="input name-input" value="${esc(b.name)}" maxlength="40"></div>
+            <div class="field limit-field"><label>₹ / month</label><input class="input limit-input" type="number" inputmode="decimal" min="0" step="100" value="${esc(b.limit)}"></div>
+            <div class="delete-cell"><button class="danger-btn delete-bucket" type="button" aria-label="Delete ${esc(b.name)}">Delete</button></div>
+          </div>`).join('')}
+      </div>
+      <div class="action-row" style="margin-top:14px"><button id="addBucketBtn" class="secondary" type="button">+ Add bucket</button><button id="saveBucketsBtn" class="primary" type="button">Save changes</button></div>
+    </section>
+
+    <section class="panel">
+      <h2>Impulse-control rules</h2>
+      <label class="field"><span>Warn me after this % is used</span><input id="warnPercent" class="input" type="number" min="1" max="100" value="${esc(state.settings.warnAtPercent)}"></label>
+      <label style="display:flex;align-items:center;gap:10px;margin-top:16px"><input id="lockLimit" type="checkbox" ${state.settings.lockAtLimit ? 'checked' : ''}> <span>Block payment launch if bucket would go over limit</span></label>
+    </section>
+
+    <section class="panel">
+      <h2>Install & privacy</h2>
+      <div class="mini">All budgets and transaction notes stay in this browser's local storage. No account, bank credentials, or UPI PIN are collected.</div>
+      <div class="action-stack">
+        <button id="installBtn" class="secondary full" type="button" disabled>Home-screen install requires HTTPS</button>
+        <button id="exportBtn" class="secondary full" type="button">Export backup</button>
+        <button id="importBtn" class="secondary full" type="button">Import backup</button>
+        <button id="resetBtn" class="danger-btn full" type="button">Reset all local data</button>
+      </div>
+    </section>
+
+    <section class="notice" style="margin-top:12px">
+      This standalone file works without hosting. Live camera preview and true PWA installation require HTTPS; in local-file mode use “Take / choose QR photo” or paste the UPI link.
+    </section>`;
+
+  $('#addBucketBtn').addEventListener('click', () => {
+    state.buckets.push({ id: makeId('bucket'), name: 'New bucket', emoji: '💰', limit: 1000 });
+    saveState();
+    renderSettings();
+  });
+
+  main.querySelectorAll('.delete-bucket').forEach((btn) => btn.addEventListener('click', () => {
+    const row = btn.closest('[data-edit-bucket]');
+    const id = row.dataset.editBucket;
+    const bucket = state.buckets.find((b) => b.id === id);
+    if (state.buckets.length <= 1) return notify('Keep at least one bucket.');
+    const hasTx = state.transactions.some((t) => t.bucketId === id);
+    if (hasTx) return notify('This bucket has history. Rename it instead of deleting it.');
+    if (!confirm(`Delete ${bucket?.name || 'this bucket'}?`)) return;
+    state.buckets = state.buckets.filter((b) => b.id !== id);
+    saveState();
+    renderSettings();
+  }));
+
+  $('#saveBucketsBtn').addEventListener('click', saveSettingsForm);
+  $('#warnPercent').addEventListener('change', saveSettingsForm);
+  $('#lockLimit').addEventListener('change', saveSettingsForm);
+  $('#exportBtn').addEventListener('click', exportBackup);
+  $('#importBtn').addEventListener('click', () => importFile.click());
+  $('#resetBtn').addEventListener('click', resetApp);
+}
+
+function saveSettingsForm() {
+  const seen = new Set();
+  for (const row of main.querySelectorAll('[data-edit-bucket]')) {
+    const bucket = state.buckets.find((b) => b.id === row.dataset.editBucket);
+    if (!bucket) continue;
+    const name = row.querySelector('.name-input').value.trim().slice(0,40);
+    const emoji = row.querySelector('.emoji-input').value.trim().slice(0,8) || '💰';
+    const limit = Number(row.querySelector('.limit-input').value);
+    if (!name) return notify('Every bucket needs a name.');
+    if (seen.has(name.toLowerCase())) return notify('Bucket names must be unique.');
+    if (!Number.isFinite(limit) || limit < 0 || limit > 100000000) return notify(`Invalid limit for ${name}.`);
+    seen.add(name.toLowerCase());
+    bucket.name = name;
+    bucket.emoji = emoji;
+    bucket.limit = Math.round(limit * 100) / 100;
+  }
+  const warn = Math.min(100, Math.max(1, Number($('#warnPercent')?.value) || 80));
+  state.settings.warnAtPercent = warn;
+  state.settings.lockAtLimit = $('#lockLimit')?.checked !== false;
+  saveState();
+  notify('Settings saved.');
+  renderSettings();
+}
+
+function exportBackup() {
+  const data = JSON.stringify({ exportedAt: new Date().toISOString(), state }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bucketpay-backup-${periodKey()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+importFile.addEventListener('change', async () => {
+  const file = importFile.files?.[0];
+  importFile.value = '';
+  if (!file) return;
+  try {
+    const raw = JSON.parse(await file.text());
+    const incoming = normalizeState(raw.state || raw);
+    if (!confirm(`Import ${incoming.buckets.length} buckets and ${incoming.transactions.length} transactions? This replaces current local data.`)) return;
+    state = incoming;
+    saveState();
+    notify('Backup imported.');
+    renderSettings();
+  } catch {
+    notify('That backup file is invalid.');
+  }
+});
+
+async function installApp() {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  renderSettings();
+}
+
+function resetApp() {
+  if (!confirm('Reset all BucketPay buckets and transaction history on this device?')) return;
+  storageRemove(STORAGE_KEY);
+  clearPending();
+  state = defaultState();
+  saveState();
+  notify('BucketPay reset.');
+  setRoute('home');
+}
+
+backBtn.addEventListener('click', () => {
+  if (route.name === 'scanner') setRoute('home');
+  else if (route.name === 'payment') setRoute('scanner', { bucketId: route.bucketId });
+  else if (route.name === 'pending') setRoute('home');
+  else setRoute('home');
+});
+settingsBtn.addEventListener('click', () => setRoute('settings'));
+navHome.addEventListener('click', () => setRoute('home'));
+navHistory.addEventListener('click', () => setRoute('history'));
+navSettings.addEventListener('click', () => setRoute('settings'));
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  if (route.name === 'settings') renderSettings();
+});
+
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  notify('BucketPay installed.');
+});
+
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && launchedPendingThisSession && readPending()) {
+    setTimeout(() => { if (readPending()) setRoute('pending'); }, 250);
+  }
+});
+window.addEventListener('pageshow', () => {
+  if (readPending() && launchedPendingThisSession) setRoute('pending');
+});
+
+// Standalone build intentionally does not register a service worker.
+
+// If a pending payment survived a page close/reopen, surface it immediately.
+if (readPending()) {
+  launchedPendingThisSession = true;
+  route = { name: 'pending' };
+}
+render();
+
+</script>
+</body>
+</html>
