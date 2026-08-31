@@ -244,15 +244,39 @@ main { padding: 10px 16px 126px; }
 .bottom-nav { width:min(680px,100%); }
 @media (max-width:520px) { .fab { right:18px; } .date-row { grid-template-columns:1fr; } }
 
-@media (max-width: 440px) {
-  .bucket-grid { grid-template-columns:1fr 1fr; }
-  .bucket-editor { grid-template-columns:64px 1fr; }
+@media (max-width: 600px) {
+  .app-shell { max-width:none; }
+  main { padding:8px 14px 120px; }
+  .topbar { min-height:64px; padding-left:10px; padding-right:10px; }
+  .hero { padding:18px; border-radius:22px; }
+  .hero-top { align-items:end; }
+  .hero-amount { font-size:2.55rem; }
+  .hero-side strong { font-size:1rem; }
+  .quick-actions { grid-template-columns:1fr 1fr; gap:8px; }
+  .quick-action { min-height:52px; padding:0 10px; font-size:.96rem; }
+  .bucket-grid { grid-template-columns:1fr !important; gap:12px; }
+  .bucket-card-v2 { padding:16px; border-radius:20px; }
+  .bucket-main { grid-template-columns:48px minmax(0,1fr); gap:12px; }
+  .bucket-balance { grid-column:2; text-align:left; white-space:normal; margin-top:-4px; }
+  .bucket-balance strong { font-size:1.15rem; }
+  .bucket-balance small { display:inline; }
+  .bucket-actions { grid-template-columns:1fr 1fr; gap:9px; }
+  .bucket-actions button { min-height:46px; font-size:.95rem; }
+  .section-head { margin-top:22px; }
+  .fab { right:16px; bottom:82px; width:52px; min-width:52px; height:52px; padding:0; font-size:0; border-radius:50%; }
+  .fab::after { content:'+'; font-size:1.7rem; line-height:1; }
+  .date-row { grid-template-columns:1fr; }
+  .bucket-editor { grid-template-columns:64px minmax(0,1fr); }
   .bucket-editor .limit-field { grid-column:1/2; }
   .bucket-editor .delete-cell { grid-column:2/3; align-self:end; }
 }
-@media (max-width: 355px) {
-  main { padding-left:12px; padding-right:12px; }
-  .bucket-grid { grid-template-columns:1fr; }
+@media (max-width: 360px) {
+  main { padding-left:10px; padding-right:10px; }
+  .hero { padding:16px; }
+  .hero-amount { font-size:2.25rem; }
+  .quick-actions, .bucket-actions { grid-template-columns:1fr; }
+  .bucket-main { grid-template-columns:44px minmax(0,1fr); }
+  .bucket-icon { width:44px; height:44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
