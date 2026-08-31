@@ -9,13 +9,15 @@
 <style>
 :root {
   color-scheme: light dark;
-  --bg: #f7f7f4;
+  --bg: #f4f7f6;
   --surface: #ffffff;
-  --surface-2: #f0f1ed;
-  --text: #171717;
-  --muted: #6b7280;
-  --border: #dedfd9;
-  --accent: #111827;
+  --surface-2: #edf3f1;
+  --surface-3: #e4eeeb;
+  --text: #12211d;
+  --muted: #687a74;
+  --border: #d9e4e0;
+  --accent: #12664f;
+  --accent-strong: #0c4f3c;
   --accent-text: #ffffff;
   --danger: #b42318;
   --warning: #9a6700;
@@ -26,14 +28,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #10110f;
-    --surface: #181a17;
-    --surface-2: #22241f;
-    --text: #f5f5f2;
-    --muted: #a6aaa2;
-    --border: #30332d;
-    --accent: #f5f5f2;
-    --accent-text: #11120f;
+    --bg: #0d1512;
+    --surface: #14201c;
+    --surface-2: #1b2b25;
+    --surface-3: #22372f;
+    --text: #f1f7f4;
+    --muted: #a5b8b1;
+    --border: #294139;
+    --accent: #69d3ad;
+    --accent-strong: #8be0bf;
+    --accent-text: #092219;
     --danger: #ffb4ab;
     --warning: #f5d06f;
     --success: #7ee2b8;
@@ -184,6 +188,62 @@ main { padding: 14px 16px 32px; outline: none; }
 .toast { position:fixed; z-index:100; left:50%; bottom:94px; transform:translate(-50%,14px); max-width:min(520px,calc(100% - 32px)); padding:11px 14px; border-radius:13px; background:var(--text); color:var(--bg); opacity:0; pointer-events:none; transition:.2s ease; box-shadow:var(--shadow); font-size:.88rem; text-align:center; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
 
+
+/* v2 UX refresh */
+.app-shell { max-width: 680px; }
+.topbar { min-height: 72px; padding-left:16px; padding-right:16px; }
+.brand { font-size:1.05rem; }
+main { padding: 10px 16px 126px; }
+.hero { border-radius:28px; padding:22px; background:linear-gradient(145deg,var(--surface),var(--surface-2)); box-shadow:none; }
+.hero-top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.hero-side { text-align:right; min-width:0; }
+.hero-side strong { display:block; font-size:1.05rem; }
+.hero-side span { color:var(--muted); font-size:.76rem; }
+.hero-amount { font-size:clamp(2.2rem,10vw,3.7rem); }
+.quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+.quick-action { min-height:56px; display:flex; align-items:center; justify-content:center; gap:9px; border-radius:17px; border:1px solid var(--border); font-weight:760; cursor:pointer; }
+.quick-action.primaryish { background:var(--accent); color:var(--accent-text); border-color:var(--accent); }
+.quick-action.secondaryish { background:var(--surface); color:var(--text); }
+.section-head { margin-top:26px; }
+.bucket-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+.bucket-card-v2 { border:1px solid var(--border); border-radius:20px; background:var(--surface); padding:15px; display:grid; gap:12px; }
+.bucket-main { display:grid; grid-template-columns:46px minmax(0,1fr) auto; gap:12px; align-items:center; }
+.bucket-icon { width:46px; height:46px; display:grid; place-items:center; border-radius:15px; background:var(--surface-2); font-size:1.35rem; }
+.bucket-copy { min-width:0; }
+.bucket-copy strong { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.bucket-copy small { color:var(--muted); display:block; margin-top:3px; }
+.bucket-balance { text-align:right; white-space:nowrap; }
+.bucket-balance strong { display:block; font-size:1.05rem; }
+.bucket-balance small { color:var(--muted); }
+.bucket-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.bucket-actions button { min-height:42px; border-radius:13px; font-weight:700; cursor:pointer; }
+.pay-bucket { background:var(--accent); color:var(--accent-text); border:1px solid var(--accent); }
+.add-bucket-expense { background:var(--surface-2); color:var(--text); border:1px solid var(--border); }
+.progress { margin-top:0; }
+.recent-card { display:flex; align-items:center; gap:12px; padding:12px 2px; border-bottom:1px solid var(--border); }
+.recent-card:last-child { border-bottom:0; }
+.recent-icon { width:40px; height:40px; border-radius:13px; display:grid; place-items:center; background:var(--surface-2); flex:0 0 auto; }
+.recent-copy { flex:1; min-width:0; }
+.recent-copy strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.recent-copy small { color:var(--muted); }
+.recent-amt { font-weight:760; white-space:nowrap; }
+.fab { position:fixed; z-index:35; right:max(18px,calc((100vw - 680px)/2 + 18px)); bottom:86px; min-height:52px; padding:0 18px; border-radius:999px; border:0; background:var(--accent); color:var(--accent-text); font-weight:800; box-shadow:0 10px 28px rgba(0,0,0,.18); cursor:pointer; }
+.fab:active { transform:translateY(1px); }
+.form-card { padding:18px; border:1px solid var(--border); border-radius:22px; background:var(--surface); }
+.amount-entry { position:relative; }
+.amount-entry .currency { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:1.5rem; font-weight:760; color:var(--muted); }
+.amount-entry input { min-height:68px; padding-left:42px; font-size:2rem; font-weight:800; letter-spacing:-.04em; }
+.bucket-picker { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:8px; }
+.bucket-choice { min-height:52px; padding:10px 12px; border-radius:15px; background:var(--surface); border:1px solid var(--border); color:var(--text); text-align:left; cursor:pointer; display:flex; align-items:center; gap:9px; }
+.bucket-choice.selected { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,var(--surface)); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 14%,transparent); }
+.bucket-choice span:last-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.form-help { color:var(--muted); font-size:.82rem; line-height:1.45; }
+.date-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.empty-state { padding:28px 18px; text-align:center; border:1px dashed var(--border); border-radius:18px; color:var(--muted); }
+.tx { border-radius:18px; padding:14px; }
+.bottom-nav { width:min(680px,100%); }
+@media (max-width:520px) { .fab { right:18px; } .date-row { grid-template-columns:1fr; } }
+
 @media (max-width: 440px) {
   .bucket-grid { grid-template-columns:1fr 1fr; }
   .bucket-editor { grid-template-columns:64px 1fr; }
@@ -199,7 +259,7 @@ main { padding: 14px 16px 32px; outline: none; }
 }
 
 </style>
-  <title>BucketPay</title>
+  <title>BucketPay · Budget before you spend</title>
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -213,6 +273,8 @@ main { padding: 14px 16px 32px; outline: none; }
     </header>
 
     <main id="main" tabindex="-1"></main>
+
+    <button id="quickAddBtn" class="fab" type="button">＋ Add spent</button>
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button id="navHome" class="nav-btn active" type="button"><span>⌂</span><small>Home</small></button>
@@ -457,6 +519,7 @@ const periodLabel = $('#periodLabel');
 const navHome = $('#navHome');
 const navHistory = $('#navHistory');
 const navSettings = $('#navSettings');
+const quickAddBtn = $('#quickAddBtn');
 const toast = $('#toast');
 const importFile = $('#importFile');
 
@@ -529,6 +592,7 @@ function setRoute(name, data = {}) {
 function syncChrome() {
   periodLabel.textContent = monthLabel();
   backBtn.classList.toggle('hidden', ['home', 'history', 'settings'].includes(route.name));
+  quickAddBtn.classList.toggle('hidden', route.name === 'addExpense' || route.name === 'scanner' || route.name === 'payment' || route.name === 'pending');
   settingsBtn.classList.toggle('hidden', route.name === 'settings');
   navHome.classList.toggle('active', route.name === 'home');
   navHistory.classList.toggle('active', route.name === 'history');
@@ -541,6 +605,7 @@ function render() {
   else if (route.name === 'scanner') renderScanner();
   else if (route.name === 'payment') renderPayment();
   else if (route.name === 'pending') renderPending();
+  else if (route.name === 'addExpense') renderAddExpense();
   else if (route.name === 'history') renderHistory();
   else if (route.name === 'settings') renderSettings();
   else renderHome();
@@ -548,40 +613,69 @@ function render() {
 
 function renderHome() {
   const total = totalSnapshot(state);
+  const pct = total.limit > 0 ? Math.min(100, Math.max(0, (total.spent / total.limit) * 100)) : 0;
   const cards = state.buckets.map((b) => {
     const snap = bucketSnapshot(state, b.id);
     const used = Math.max(0, Math.min(100, snap.percent));
     const statusClass = snap.remaining < 0 ? 'over' : snap.percent >= state.settings.warnAtPercent ? 'warn' : '';
+    const leftLabel = snap.remaining < 0 ? `${formatInr(Math.abs(snap.remaining))} over` : `${formatInr(snap.remaining)} left`;
     return `
-      <button class="bucket-card" data-bucket="${esc(b.id)}" type="button">
-        <div class="bucket-top"><span class="emoji">${esc(b.emoji)}</span><span class="bucket-name">${esc(b.name)}</span></div>
-        <div class="remaining">${formatInr(snap.remaining)}</div>
-        <div class="mini">${formatInr(snap.spent)} spent of ${formatInr(snap.limit)}</div>
+      <article class="bucket-card-v2">
+        <div class="bucket-main">
+          <div class="bucket-icon">${esc(b.emoji)}</div>
+          <div class="bucket-copy"><strong>${esc(b.name)}</strong><small>${formatInr(snap.spent)} of ${formatInr(snap.limit)} used</small></div>
+          <div class="bucket-balance"><strong>${leftLabel}</strong><small>${Math.round(Math.max(0,snap.percent))}% used</small></div>
+        </div>
         <div class="progress ${statusClass}"><span style="width:${used.toFixed(1)}%"></span></div>
-      </button>`;
+        <div class="bucket-actions">
+          <button class="pay-bucket" data-pay-bucket="${esc(b.id)}" type="button">Scan & pay</button>
+          <button class="add-bucket-expense" data-add-bucket="${esc(b.id)}" type="button">＋ Record spent</button>
+        </div>
+      </article>`;
   }).join('');
+
+  const recent = state.transactions.filter(t => t.period === periodKey()).slice(0,4);
+  const recentHtml = recent.length ? recent.map(t => {
+    const b = state.buckets.find(x => x.id === t.bucketId);
+    return `<div class="recent-card">
+      <div class="recent-icon">${esc(b?.emoji || '💸')}</div>
+      <div class="recent-copy"><strong>${esc(t.merchant)}</strong><small>${esc(t.bucketName)} · ${new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short'}).format(new Date(t.timestamp))}</small></div>
+      <div class="recent-amt">-${formatInr(t.amount)}</div>
+    </div>`;
+  }).join('') : '<div class="empty-state">No spending recorded yet. Use <strong>Record spent</strong> for payments you already made in GPay/PhonePe.</div>';
 
   main.innerHTML = `
     <section class="hero">
-      <div class="eyebrow">Available across buckets</div>
-      <div class="hero-amount">${formatInr(total.remaining)}</div>
-      <div class="hero-meta">${formatInr(total.spent)} spent of ${formatInr(total.limit)} this month</div>
+      <div class="hero-top">
+        <div><div class="eyebrow">Left this month</div><div class="hero-amount">${formatInr(total.remaining)}</div></div>
+        <div class="hero-side"><strong>${formatInr(total.spent)}</strong><span>spent of ${formatInr(total.limit)}</span></div>
+      </div>
+      <div class="progress ${total.remaining < 0 ? 'over' : pct >= state.settings.warnAtPercent ? 'warn' : ''}" style="margin-top:18px"><span style="width:${pct.toFixed(1)}%"></span></div>
+      <div class="quick-actions">
+        <button id="homePayBtn" class="quick-action primaryish" type="button">▣ Scan & pay</button>
+        <button id="homeAddBtn" class="quick-action secondaryish" type="button">＋ Record spent</button>
+      </div>
     </section>
 
-    <div class="section-head"><h2>Pay from a bucket</h2><button id="manualExpenseBtn" class="text-btn" type="button">+ Expense</button></div>
+    <div class="section-head"><h2>Your buckets</h2><button id="editBucketsBtn" class="text-btn" type="button">Edit</button></div>
     <section class="bucket-grid">${cards}</section>
 
-    <div class="panel" style="margin-top:16px">
-      <strong>How it works</strong>
-      <div class="mini" style="margin-top:6px">Choose a bucket → scan UPI QR → amount is read automatically when present → open your UPI app. No bank password or UPI PIN is stored here.</div>
-    </div>
-    ${persistentStorageAvailable ? '' : '<div class="notice warning" style="margin-top:12px"><strong>Storage warning:</strong> this Android document viewer blocked persistent browser storage, so changes may be lost after closing the file. The HTTPS version fixes this.</div>'}`;
+    <div class="section-head"><h2>Recent</h2><button id="seeHistoryBtn" class="text-btn" type="button">See all</button></div>
+    <section class="panel" style="padding:4px 14px">${recentHtml}</section>
+    ${persistentStorageAvailable ? '' : '<div class="notice warning" style="margin-top:12px"><strong>Storage warning:</strong> this viewer blocked persistent storage. Use the HTTPS version so your data persists.</div>'}`;
 
-  main.querySelectorAll('[data-bucket]').forEach((el) => el.addEventListener('click', () => {
-    selectedBucketId = el.dataset.bucket;
+  $('#homePayBtn').addEventListener('click', () => {
+    if (state.buckets.length === 1) { selectedBucketId = state.buckets[0].id; setRoute('scanner',{bucketId:selectedBucketId}); return; }
+    setRoute('addExpense', { mode:'pickPay' });
+  });
+  $('#homeAddBtn').addEventListener('click', () => setRoute('addExpense'));
+  $('#editBucketsBtn').addEventListener('click', () => setRoute('settings'));
+  $('#seeHistoryBtn').addEventListener('click', () => setRoute('history'));
+  main.querySelectorAll('[data-pay-bucket]').forEach((el) => el.addEventListener('click', () => {
+    selectedBucketId = el.dataset.payBucket;
     setRoute('scanner', { bucketId: selectedBucketId });
   }));
-  $('#manualExpenseBtn').addEventListener('click', openManualExpense);
+  main.querySelectorAll('[data-add-bucket]').forEach((el) => el.addEventListener('click', () => setRoute('addExpense', { bucketId: el.dataset.addBucket })));
 }
 
 function renderScanner() {
@@ -876,7 +970,7 @@ function renderHistory() {
           <div class="tx-actions"><button class="text-btn" data-delete-tx="${esc(t.id)}" type="button">Undo</button></div>
         </article>`).join('') : '<div class="empty">No expenses recorded this month.</div>'}
     </section>`;
-  $('#historyAdd').addEventListener('click', openManualExpense);
+  $('#historyAdd').addEventListener('click', () => setRoute('addExpense'));
   main.querySelectorAll('[data-delete-tx]').forEach((btn) => btn.addEventListener('click', () => {
     const tx = state.transactions.find((t) => t.id === btn.dataset.deleteTx);
     if (!tx) return;
@@ -888,21 +982,81 @@ function renderHistory() {
   }));
 }
 
-function openManualExpense() {
-  const bucketOptions = state.buckets.map((b) => `${b.name} (${formatInr(bucketSnapshot(state,b.id).remaining)} left)`).join('\n');
-  const bucketName = prompt(`Bucket name:\n${bucketOptions}`);
-  if (!bucketName) return;
-  const bucket = state.buckets.find((b) => b.name.toLowerCase() === bucketName.trim().toLowerCase());
-  if (!bucket) return notify('Type the bucket name exactly as shown.');
-  const amount = parseAmount(prompt('Amount spent:'));
-  if (amount === null) return notify('Invalid amount.');
-  const snap = bucketSnapshot(state, bucket.id);
-  if (state.settings.lockAtLimit && amount > snap.remaining) return notify('That would exceed the bucket limit.');
-  const merchant = prompt('Merchant / note (optional):') || 'Manual expense';
-  addTransaction(state, { bucketId: bucket.id, amount, merchant, vpa: '', note: 'Manual entry' });
-  saveState();
-  notify('Expense added.');
-  render();
+function localDateTimeValue(ts = Date.now()) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderAddExpense() {
+  const isPickPay = route.mode === 'pickPay';
+  let chosen = route.bucketId || state.buckets[0]?.id || '';
+  const choices = state.buckets.map(b => {
+    const snap = bucketSnapshot(state,b.id);
+    return `<button type="button" class="bucket-choice ${b.id===chosen?'selected':''}" data-choose-bucket="${esc(b.id)}"><span>${esc(b.emoji)}</span><span>${esc(b.name)} · ${formatInr(snap.remaining)} left</span></button>`;
+  }).join('');
+
+  if (isPickPay) {
+    main.innerHTML = `
+      <section class="form-card">
+        <div class="eyebrow">Choose where this payment belongs</div>
+        <h2 style="margin:6px 0 4px">Pay from which bucket?</h2>
+        <p class="form-help" style="margin:0 0 12px">You’ll scan the merchant QR immediately after choosing.</p>
+        <div class="bucket-picker">${choices}</div>
+        <div class="action-stack"><button id="continuePayBtn" class="primary full" type="button">Continue to scanner</button></div>
+      </section>`;
+    const update = id => { chosen=id; main.querySelectorAll('.bucket-choice').forEach(x=>x.classList.toggle('selected',x.dataset.chooseBucket===id)); };
+    main.querySelectorAll('[data-choose-bucket]').forEach(btn=>btn.addEventListener('click',()=>update(btn.dataset.chooseBucket)));
+    $('#continuePayBtn').addEventListener('click',()=>{ selectedBucketId=chosen; setRoute('scanner',{bucketId:chosen}); });
+    return;
+  }
+
+  main.innerHTML = `
+    <section class="form-card">
+      <div class="eyebrow">Already paid elsewhere?</div>
+      <h2 style="margin:6px 0 4px">Record spending</h2>
+      <p class="form-help" style="margin:0 0 16px">Use this for something you paid directly in GPay, PhonePe, cash, card, etc. Recording it keeps your bucket accurate.</p>
+
+      <div class="field"><label>Amount</label><div class="amount-entry"><span class="currency">₹</span><input id="manualAmount" class="input" inputmode="decimal" autocomplete="off" placeholder="0"></div></div>
+
+      <div class="field"><label>Bucket</label><div class="bucket-picker" id="manualBucketPicker">${choices}</div></div>
+
+      <div class="field"><label for="manualMerchant">What was it for?</label><input id="manualMerchant" class="input" maxlength="120" placeholder="e.g. Dinner, Amazon, Auto"></div>
+
+      <div class="date-row">
+        <div class="field"><label for="manualWhen">When</label><input id="manualWhen" class="input" type="datetime-local" value="${localDateTimeValue()}"></div>
+        <div class="field"><label for="manualNote">Note (optional)</label><input id="manualNote" class="input" maxlength="200" placeholder="Anything useful"></div>
+      </div>
+
+      <div id="manualImpact" class="notice" style="margin-top:16px">Enter an amount to see the bucket impact.</div>
+      <div class="action-stack"><button id="saveManualExpense" class="primary full" type="button" disabled>Record expense</button></div>
+    </section>`;
+
+  const amountEl=$('#manualAmount'), impact=$('#manualImpact'), save=$('#saveManualExpense');
+  const updateChoice=id=>{chosen=id; main.querySelectorAll('.bucket-choice').forEach(x=>x.classList.toggle('selected',x.dataset.chooseBucket===id)); validate();};
+  main.querySelectorAll('[data-choose-bucket]').forEach(btn=>btn.addEventListener('click',()=>updateChoice(btn.dataset.chooseBucket)));
+
+  function validate(){
+    const amount=parseAmount(amountEl.value); const snap=bucketSnapshot(state,chosen);
+    if(amount===null || !snap){ impact.className='notice'; impact.textContent='Enter a valid amount greater than ₹0.'; save.disabled=true; return; }
+    const after=Math.round((snap.remaining-amount)*100)/100;
+    save.disabled=false;
+    if(after<0){ impact.className='notice warning'; impact.textContent=`This puts ${snap.name} ${formatInr(Math.abs(after))} over budget. That’s okay here because you’re recording money already spent.`; }
+    else { impact.className='notice success'; impact.textContent=`After recording: ${formatInr(after)} left in ${snap.name}.`; }
+  }
+  amountEl.addEventListener('input',validate); validate();
+
+  $('#saveManualExpense').addEventListener('click',()=>{
+    const amount=parseAmount(amountEl.value); if(amount===null) return;
+    const when=$('#manualWhen').value ? new Date($('#manualWhen').value).getTime() : Date.now();
+    if(!Number.isFinite(when)) return notify('Choose a valid date and time.');
+    const merchant=$('#manualMerchant').value.trim() || 'Recorded expense';
+    const note=$('#manualNote').value.trim();
+    addTransaction(state,{bucketId:chosen,amount,merchant,vpa:'',note:note || 'Manual entry',timestamp:when});
+    saveState();
+    notify(`${formatInr(amount)} recorded.`);
+    setRoute('home');
+  });
 }
 
 function renderSettings() {
@@ -932,7 +1086,7 @@ function renderSettings() {
       <h2>Install & privacy</h2>
       <div class="mini">All budgets and transaction notes stay in this browser's local storage. No account, bank credentials, or UPI PIN are collected.</div>
       <div class="action-stack">
-        <button id="installBtn" class="secondary full" type="button" disabled>Home-screen install requires HTTPS</button>
+        <button id="installBtn" class="secondary full" type="button" disabled>Install from browser menu</button>
         <button id="exportBtn" class="secondary full" type="button">Export backup</button>
         <button id="importBtn" class="secondary full" type="button">Import backup</button>
         <button id="resetBtn" class="danger-btn full" type="button">Reset all local data</button>
@@ -940,7 +1094,7 @@ function renderSettings() {
     </section>
 
     <section class="notice" style="margin-top:12px">
-      This standalone file works without hosting. Live camera preview and true PWA installation require HTTPS; in local-file mode use “Take / choose QR photo” or paste the UPI link.
+      On your GitHub Pages HTTPS URL, camera access and persistent browser storage work normally. Your balances and history remain local to this browser/device.
     </section>`;
 
   $('#addBucketBtn').addEventListener('click', () => {
@@ -1044,12 +1198,14 @@ backBtn.addEventListener('click', () => {
   if (route.name === 'scanner') setRoute('home');
   else if (route.name === 'payment') setRoute('scanner', { bucketId: route.bucketId });
   else if (route.name === 'pending') setRoute('home');
+  else if (route.name === 'addExpense') setRoute('home');
   else setRoute('home');
 });
 settingsBtn.addEventListener('click', () => setRoute('settings'));
 navHome.addEventListener('click', () => setRoute('home'));
 navHistory.addEventListener('click', () => setRoute('history'));
 navSettings.addEventListener('click', () => setRoute('settings'));
+quickAddBtn.addEventListener('click', () => setRoute('addExpense'));
 
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
